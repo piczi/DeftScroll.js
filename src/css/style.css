@@ -1,0 +1,28 @@
+#myBox {
+    width: 90%;
+    height: 90%;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    overflow: hidden;
+}
+
+#myBox p {
+    margin: 5px auto;
+    line-height: 60px;
+    text-align: center;
+    background: #ddd;
+}
+
+body {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    overflow: hidden;
+}
