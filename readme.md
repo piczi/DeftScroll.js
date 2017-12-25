@@ -24,4 +24,4 @@ npm install
     进行访问
 
 #### 项目说明
-    1688买手节H5。
+    DeftScroll。
