@@ -1,11 +1,12 @@
 /***
+ * 用于前端列表不能动的插件，可以自定义滚动条
  * 着手开发于2017-12-11
  * author：一只神秘的猿
  * name: DeftScroll
  */
 
-/****1.2版本
- * 开发于2017-12-21
+/****1.2.1版本
+ * 修改于2018-1-09
  */
 (function (win,doc,Math) {
     var rAF = window.requestAnimationFrame	||
@@ -61,11 +62,9 @@
             }
 
             if (this.height > this.boxHeight) {
-
                 if (!this.options || !this.options.scrollBar) {
                     return;
                 }
-
                 this.scrollBox = doc.createElement("div");
                 this.scrollItem = doc.createElement("div");
                 this.scrollBox.appendChild(this.scrollItem);
@@ -103,6 +102,10 @@
 
         changePosition: function () {
             var y = 0;
+
+            if (this.height <= this.boxHeight) {
+                return;
+            }
             if (this.y <= 0 && this.y >= -this.overHeight) {
 
                 this.scrollItem.style.transform = "translate3d(0," + Math.abs(this.y) * (this.boxHeight - this.boxHeight * this.boxHeight / this.height) / (this.height - this.boxHeight) + "px,0)";
@@ -125,6 +128,7 @@
             var self = this;
 
             this.element.addEventListener("touchstart",function (e) {
+                e.preventDefault();
 
                 self.startY = e.touches[0].pageY;
                 self.oStartY = self.startY;
@@ -134,6 +138,7 @@
             },false);
 
             this.element.addEventListener("touchmove",function (e) {
+                e.preventDefault();
 
                 if (self.y > 0) {
 
@@ -167,6 +172,7 @@
             },false);
 
             this.element.addEventListener("touchend",function (e) {
+                e.preventDefault();
 
                 self.endTime = utils.getTime();
                 self.endY = e.changedTouches[0].pageY;
@@ -187,7 +193,7 @@
             var duration = this.endTime - this.startTime,
                 newY = Math.round(this.endY);
 
-            if (duration < 300) {
+            if (duration < 300 && this.y < 0 && this.y > -this.overHeight) {
 
                 aniData = utils.momentum(newY,this.oStartY,duration,this.y,this.boxHeight,-this.overHeight);
                 this.speed = aniData.speed;
@@ -196,13 +202,15 @@
                 this._animate(aniData.destination,aniData.duration,utils.ease.quadratic.fn,aniData.speed);
             } else if (this.y > 0) {
 
-                this.scrollTo(0,20,200);
-
+                this.scrollTo(0);
 
             } else if (this.y <= -this.overHeight) {
 
-
-                this.scrollTo(-this.overHeight,20,200);
+                if (this.boxHeight <= this.height) {
+                    this.scrollTo(-this.overHeight);
+                } else {
+                    this.scrollTo(0);
+                }
 
 
             } else {
@@ -326,7 +334,13 @@
 
         scrollTo: function (position,time,speed) {
 
-            this._animate(position,time * 15,utils.ease.quadratic.fn,speed / 15);
+            if (time && speed) {
+                this._animate(position,time * 15,utils.ease.quadratic.fn,speed / 15);
+            } else {
+                this.y = position;
+                this.transform();
+                this.changePosition();
+            }
         },
 
         tap: function (element,callBack) {
@@ -421,7 +435,7 @@
             var distance = Math.abs(targetY - current),
                 speed = speed * .6,
 
-            time = distance / speed;
+                time = distance / speed;
 
             return {
                 time: time,
